@@ -1,0 +1,6 @@
+{
+  "name": "المسبحة الوردية",
+  "description": "تطبيق المسبحة الوردية التفاعلي مع عداد الحبات والأسرار اليومية والصلوات الكاملة",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
