@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Church
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FormatSize
@@ -86,6 +87,9 @@ fun SettingsDialog(
     reminderMinute: Int = 0,
     onReminderTimeChange: (Int, Int) -> Unit = { _, _ -> },
     onSendTestNotification: () -> Boolean = { false },
+    backgroundOpacity: Float = 0.12f,
+    onBackgroundOpacityChange: (Float) -> Unit = {},
+    onOpenWelcomeBoard: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -542,6 +546,85 @@ fun SettingsDialog(
                             }
                         }
                     }
+                }
+
+                HorizontalDivider()
+
+                // Background Image Opacity (خلفية السيدة العذراء واهبة النعم)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "خلفية السيدة العذراء واهبة النعم",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "ضبط درجة شفافية صورة الخلفية أثناء تلاوة المسبحة",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Right
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf(
+                            0.0f to "إيقاف",
+                            0.08f to "خفيفة",
+                            0.14f to "متوسطة",
+                            0.22f to "واضحة"
+                        ).forEach { (opacity, label) ->
+                            val isSelected = kotlin.math.abs(backgroundOpacity - opacity) < 0.03f
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(
+                                        if (isSelected) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                    .clickable { onBackgroundOpacityChange(opacity) }
+                                    .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        }
+                    }
+                }
+
+                HorizontalDivider()
+
+                // View Church & Group Dedication Board
+                OutlinedButton(
+                    onClick = {
+                        onDismiss()
+                        onOpenWelcomeBoard()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Church,
+                        contentDescription = null,
+                        tint = SacredGold,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "عرض لوحة كنيسة مار مرقس وجنود مريم",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         },

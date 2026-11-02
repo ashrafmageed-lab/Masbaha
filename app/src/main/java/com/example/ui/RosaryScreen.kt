@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Church
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.LinearScale
 import androidx.compose.material.icons.filled.MenuBook
@@ -31,6 +32,12 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.R
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -84,6 +91,7 @@ import com.example.ui.components.PrayerStatsScreen
 import com.example.ui.components.RosaryBeadsVisualizer
 import com.example.ui.components.SettingsDialog
 import com.example.ui.components.TodayMysteriesBanner
+import com.example.ui.components.WelcomeDedicationBoard
 import com.example.ui.theme.SacredGold
 import com.example.ui.theme.SacredGoldBright
 
@@ -110,6 +118,16 @@ fun PrayerScreen(
 
     var displayMode by rememberSaveable { mutableStateOf(CounterDisplayMode.CIRCULAR) }
     var showFontSizePanel by rememberSaveable { mutableStateOf(false) }
+
+    // 0. If Welcome Dedication Board is active (first 20 seconds upon opening or requested), show it
+    if (uiState.showWelcomeSplash) {
+        WelcomeDedicationBoard(
+            totalDurationSeconds = 20,
+            onFinish = { viewModel.dismissWelcomeSplash() },
+            modifier = modifier
+        )
+        return
+    }
 
     // If Stats Screen is requested, render full-screen PrayerStatsScreen
     if (uiState.showStatsScreen) {
@@ -222,6 +240,21 @@ fun PrayerScreen(
                         }
                     },
                     actions = {
+                        // Church & Legion of Mary Dedication Board Button
+                        IconButton(
+                            onClick = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.setShowWelcomeSplash(true)
+                            },
+                            modifier = Modifier.testTag("church_board_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Church,
+                                contentDescription = "كنيسة مار مرقس وجنود مريم",
+                                tint = SacredGold
+                            )
+                        }
+
                         // Closing Prayers Quick Access Button (صلوات الختام: السلسلة وصلاة الختام)
                         IconButton(
                             onClick = {
@@ -507,13 +540,41 @@ fun PrayerScreen(
             }
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 14.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Soft, faded background of Our Lady of Graces (السيدة العذراء واهبة النعم)
+            if (uiState.backgroundOpacity > 0f) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_our_lady_grace),
+                    contentDescription = "السيدة العذراء واهبة النعم",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(uiState.backgroundOpacity),
+                    contentScale = ContentScale.Crop
+                )
+
+                // Soft gradient scrim to ensure text and cards are 100% readable
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.background.copy(alpha = 0.82f),
+                                    MaterialTheme.colorScheme.background.copy(alpha = 0.65f),
+                                    MaterialTheme.colorScheme.background.copy(alpha = 0.88f)
+                                )
+                            )
+                        )
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
             // 1. Auto-detected Today's Rosary Mysteries Banner with explanatory texts
             TodayMysteriesBanner(
                 todayInfo = uiState.todayMysteryInfo,
@@ -730,6 +791,7 @@ fun PrayerScreen(
             }
         }
     }
+}
 
     // Dialogs
     if (uiState.showMysterySelector) {
@@ -762,6 +824,9 @@ fun PrayerScreen(
             reminderMinute = uiState.reminderMinute,
             onReminderTimeChange = { h, m -> viewModel.setReminderTime(h, m) },
             onSendTestNotification = { viewModel.sendTestNotification() },
+            backgroundOpacity = uiState.backgroundOpacity,
+            onBackgroundOpacityChange = { viewModel.setBackgroundOpacity(it) },
+            onOpenWelcomeBoard = { viewModel.setShowWelcomeSplash(true) },
             onDismiss = { viewModel.setShowSettings(false) }
         )
     }

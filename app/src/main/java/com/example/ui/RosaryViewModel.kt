@@ -50,7 +50,9 @@ data class RosaryUiState(
     val showIntentionDialog: Boolean = false,
     val showStatsScreen: Boolean = false,
     val showClosingPrayersDialog: Boolean = false,
+    val showWelcomeSplash: Boolean = true,
     val isExpandedReadingMode: Boolean = false,
+    val backgroundOpacity: Float = 0.12f,
     val statistics: RosaryStatistics? = null,
     val isReminderEnabled: Boolean = false,
     val reminderHour: Int = 20,
@@ -350,6 +352,18 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
 
     fun toggleReadingMode() {
         _uiState.update { it.copy(isExpandedReadingMode = !it.isExpandedReadingMode) }
+    }
+
+    fun dismissWelcomeSplash() {
+        _uiState.update { it.copy(showWelcomeSplash = false) }
+    }
+
+    fun setShowWelcomeSplash(show: Boolean) {
+        _uiState.update { it.copy(showWelcomeSplash = show) }
+    }
+
+    fun setBackgroundOpacity(opacity: Float) {
+        _uiState.update { it.copy(backgroundOpacity = opacity) }
     }
 
     fun setShowStatsScreen(show: Boolean) {
