@@ -123,10 +123,9 @@ class RosaryRepository(private val context: Context) {
 
     private fun getSectionTitle(id: String): String = when (id) {
         "opening" -> "صلوات البداية"
-        "salve" -> "السلام عليكِ يا سلطانة (Salve Regina)"
-        "hearts" -> "فعل التكريس لقلبي يسوع ومريم"
-        "chain" -> "صلاة السلسلة والطلبة"
-        "closing" -> "الختام والبركة"
+        "salve" -> "الصلاة الختامية للمسبحة"
+        "chain" -> "صلاة السلسلة"
+        "closing" -> "صلاة الختام"
         else -> id
     }
 
@@ -147,6 +146,12 @@ class RosaryRepository(private val context: Context) {
     }
 
     fun getMysterySetData(set: MysterySet): MysterySetData? = mysterySetsMap[set.key]
+    
+    fun getClosingPrayers(): List<SectionData> = listOfNotNull(
+        sectionsMap["salve"],
+        sectionsMap["chain"],
+        sectionsMap["closing"]
+    )
 
     fun getTodayMysteryInfo(
         date: java.time.LocalDate = java.time.LocalDate.now(),

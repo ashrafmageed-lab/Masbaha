@@ -67,7 +67,6 @@ fun buildSequence(set: MysterySet, includeChain: Boolean = true): List<Step> = b
         add(Step.Prayer(id = "glory_be", repeat = 1, bead = 0, decade = decade))
     }
     add(Step.Section("salve"))
-    add(Step.Section("hearts"))
     if (includeChain) {
         add(Step.Section("chain"))
     }

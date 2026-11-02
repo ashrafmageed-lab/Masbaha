@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.LinearScale
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
@@ -73,6 +74,7 @@ import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.History
 import com.example.domain.Step
 import com.example.ui.components.CircularRosaryCounter
+import com.example.ui.components.ClosingPrayersDialog
 import com.example.ui.components.FontSizeControlPanel
 import com.example.ui.components.MysterySelectorDialog
 import com.example.ui.components.PrayerCard
@@ -220,6 +222,21 @@ fun PrayerScreen(
                         }
                     },
                     actions = {
+                        // Closing Prayers Quick Access Button (صلوات الختام: السلسلة وصلاة الختام)
+                        IconButton(
+                            onClick = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.setShowClosingPrayersDialog(true)
+                            },
+                            modifier = Modifier.testTag("closing_prayers_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MenuBook,
+                                contentDescription = "صلوات الختام (السلسلة والختام)",
+                                tint = SacredGold
+                            )
+                        }
+
                         // Prayer Intention Button
                         IconButton(
                             onClick = {
@@ -584,34 +601,72 @@ fun PrayerScreen(
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                         viewModel.setShowStatsScreen(true)
                     },
+                    onOpenClosingPrayers = {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.setShowClosingPrayersDialog(true)
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
                 when (displayMode) {
                     CounterDisplayMode.CIRCULAR -> {
-                        // 1. Circular Beads Counter (عداد الحبات الدائري)
-                        CircularRosaryCounter(
-                            currentStep = uiState.resolvedStep.step,
-                            currentStepIndex = uiState.currentStepIndex,
-                            steps = uiState.steps,
-                            onJumpToStep = { index ->
-                                if (uiState.hapticsEnabled) {
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        // 1. Circular Beads Counter or Compact Strip
+                        if (!uiState.isExpandedReadingMode) {
+                            CircularRosaryCounter(
+                                currentStep = uiState.resolvedStep.step,
+                                currentStepIndex = uiState.currentStepIndex,
+                                steps = uiState.steps,
+                                onJumpToStep = { index ->
+                                    if (uiState.hapticsEnabled) {
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
+                                    viewModel.jumpToStep(index, context)
+                                },
+                                onCenterClick = {
+                                    if (uiState.hapticsEnabled) {
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
+                                    viewModel.nextStep(context)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                            )
+                        } else {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        viewModel.toggleReadingMode()
+                                    }
+                                    .testTag("compact_beads_bar"),
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, SacredGold.copy(alpha = 0.35f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "المس لإظهار العداد الدائري",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = SacredGold,
+                                        fontSize = 11.sp
+                                    )
+                                    Text(
+                                        text = "وضع القراءة الموسع (حبة ${uiState.resolvedStep.currentBead} من ١٠)",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
-                                viewModel.jumpToStep(index, context)
-                            },
-                            onCenterClick = {
-                                if (uiState.hapticsEnabled) {
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                }
-                                viewModel.nextStep(context)
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(260.dp)
-                        )
+                            }
+                        }
 
-                        // 2. Prayer Card below the circular counter
+                        // 2. Prayer Card below the circular counter (taking maximum vertical space)
                         PrayerCard(
                             content = uiState.resolvedStep,
                             fontScale = uiState.fontScale,
@@ -625,22 +680,29 @@ fun PrayerScreen(
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 showFontSizePanel = !showFontSizePanel
                             },
+                            onToggleReadingMode = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.toggleReadingMode()
+                            },
+                            isReadingModeExpanded = uiState.isExpandedReadingMode,
                             modifier = Modifier.weight(1f)
                         )
                     }
                     CounterDisplayMode.LINEAR -> {
                         // 1. Horizontal Rosary Decades & Beads Visualizer
-                        RosaryBeadsVisualizer(
-                            currentStep = uiState.resolvedStep.step,
-                            currentStepIndex = uiState.currentStepIndex,
-                            steps = uiState.steps,
-                            onJumpToStep = { index ->
-                                if (uiState.hapticsEnabled) {
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (!uiState.isExpandedReadingMode) {
+                            RosaryBeadsVisualizer(
+                                currentStep = uiState.resolvedStep.step,
+                                currentStepIndex = uiState.currentStepIndex,
+                                steps = uiState.steps,
+                                onJumpToStep = { index ->
+                                    if (uiState.hapticsEnabled) {
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
+                                    viewModel.jumpToStep(index, context)
                                 }
-                                viewModel.jumpToStep(index, context)
-                            }
-                        )
+                            )
+                        }
 
                         // 2. Expanded Prayer Card
                         PrayerCard(
@@ -656,6 +718,11 @@ fun PrayerScreen(
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 showFontSizePanel = !showFontSizePanel
                             },
+                            onToggleReadingMode = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.toggleReadingMode()
+                            },
+                            isReadingModeExpanded = uiState.isExpandedReadingMode,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -752,6 +819,14 @@ fun PrayerScreen(
             }
         )
     }
+
+    if (uiState.showClosingPrayersDialog) {
+        ClosingPrayersDialog(
+            closingPrayers = viewModel.getClosingPrayers(),
+            fontScale = uiState.fontScale,
+            onDismiss = { viewModel.setShowClosingPrayersDialog(false) }
+        )
+    }
 }
 
 /** Backward-compatibility alias for RosaryScreen */
@@ -770,6 +845,7 @@ private fun CompletionCard(
     onPrayAgain: () -> Unit,
     onChangeMystery: () -> Unit,
     onViewStats: () -> Unit = {},
+    onOpenClosingPrayers: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -870,7 +946,35 @@ private fun CompletionCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Closing Prayers Primary Action Button
+            Button(
+                onClick = onOpenClosingPrayers,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("completion_closing_prayers_button"),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SacredGold
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MenuBook,
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "تلاوة صلوات الختام (السلسلة والختام)",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

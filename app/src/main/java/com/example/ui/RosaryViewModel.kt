@@ -49,6 +49,8 @@ data class RosaryUiState(
     val showHistoryDialog: Boolean = false,
     val showIntentionDialog: Boolean = false,
     val showStatsScreen: Boolean = false,
+    val showClosingPrayersDialog: Boolean = false,
+    val isExpandedReadingMode: Boolean = false,
     val statistics: RosaryStatistics? = null,
     val isReminderEnabled: Boolean = false,
     val reminderHour: Int = 20,
@@ -336,6 +338,18 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setShowHistoryDialog(show: Boolean) {
         _uiState.update { it.copy(showHistoryDialog = show) }
+    }
+
+    fun setShowClosingPrayersDialog(show: Boolean) {
+        _uiState.update { it.copy(showClosingPrayersDialog = show) }
+    }
+
+    fun getClosingPrayers(): List<com.example.data.SectionData> {
+        return repository.getClosingPrayers()
+    }
+
+    fun toggleReadingMode() {
+        _uiState.update { it.copy(isExpandedReadingMode = !it.isExpandedReadingMode) }
     }
 
     fun setShowStatsScreen(show: Boolean) {

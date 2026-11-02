@@ -85,8 +85,8 @@ fun TodayMysteriesBanner(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             // Top Detection Header Row
             Row(
@@ -108,44 +108,46 @@ fun TodayMysteriesBanner(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (isExpanded) "إخفاء التأملات" else "عرض التأملات",
                         tint = SacredGold,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                     Text(
                         text = if (isExpanded) "إخفاء" else "تأملات الأسرار (٥)",
                         style = MaterialTheme.typography.labelSmall,
                         color = SacredGold,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
                     )
                 }
 
                 // Date & Automatic Detection Title
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.End) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Surface(
                                 color = SacredGold.copy(alpha = 0.15f),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(6.dp)
                             ) {
                                 Text(
                                     text = "كشف تلقائي",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = SacredGold,
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                    fontSize = 10.sp
+                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
+                                    fontSize = 9.5.sp
                                 )
                             }
                             Text(
                                 text = "اليوم ${todayInfo.dayNameAr}: ${todayInfo.mysterySet.titleAr}",
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 13.5.sp
                             )
                         }
 
@@ -153,13 +155,13 @@ fun TodayMysteriesBanner(
                             text = todayInfo.mysterySet.subtitleAr,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 11.sp
+                            fontSize = 10.5.sp
                         )
                     }
 
                     Surface(
-                        modifier = Modifier.size(38.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.size(32.dp),
+                        shape = RoundedCornerShape(8.dp),
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -167,24 +169,11 @@ fun TodayMysteriesBanner(
                                 imageVector = Icons.Default.CalendarMonth,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(17.dp)
                             )
                         }
                     }
                 }
-            }
-
-            // Explanatory Intro Text
-            if (todayInfo.introText.isNotEmpty()) {
-                Text(
-                    text = todayInfo.introText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Right,
-                    fontSize = 13.sp,
-                    lineHeight = 19.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
 
             // Expanded 5 Mysteries List with Explanatory Texts and Fruits
@@ -196,9 +185,24 @@ fun TodayMysteriesBanner(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+                    // Explanatory Intro Text inside expanded view
+                    if (todayInfo.introText.isNotEmpty()) {
+                        Text(
+                            text = todayInfo.introText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Right,
+                            fontSize = 12.5.sp,
+                            lineHeight = 18.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        )
+                    }
+
                     HorizontalDivider(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         thickness = 1.dp
