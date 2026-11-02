@@ -208,21 +208,17 @@ fun PrayerHistoryDialog(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        Surface(
+                                            color = SacredGold.copy(alpha = 0.15f),
+                                            shape = RoundedCornerShape(6.dp)
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Timer,
-                                                contentDescription = null,
-                                                tint = SacredGold,
-                                                modifier = Modifier.size(13.dp)
-                                            )
                                             Text(
-                                                text = formatDurationAr(record.durationSeconds),
+                                                text = "✓ مكتملة",
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                fontSize = 11.sp
+                                                color = SacredGold,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                                fontSize = 10.5.sp
                                             )
                                         }
 

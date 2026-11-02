@@ -205,7 +205,7 @@ fun PrayerCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
+                    .weight(1f)
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.End
             ) {
@@ -217,10 +217,12 @@ fun PrayerCard(
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = if (content.prayerKind == "hail_mary") TextAlign.Center else TextAlign.Justify,
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = (18.5f * fontScale).sp,
-                        lineHeight = (31 * fontScale).sp,
+                        fontSize = (19.5f * fontScale).sp,
+                        lineHeight = (32 * fontScale).sp,
                         fontWeight = if (content.prayerKind == "hail_mary") FontWeight.Medium else FontWeight.Normal,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
                     )
                 }
             }

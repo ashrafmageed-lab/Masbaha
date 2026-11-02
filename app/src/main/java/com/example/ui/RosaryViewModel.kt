@@ -58,7 +58,7 @@ data class RosaryUiState(
     val reminderHour: Int = 20,
     val reminderMinute: Int = 0,
     val elapsedSeconds: Long = 0L,
-    val isTimerRunning: Boolean = true,
+    val isTimerRunning: Boolean = false,
     val isDarkThemeOverride: Boolean? = null // null: system, true: dark, false: light
 )
 
@@ -98,23 +98,15 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     private var timerJob: Job? = null
 
     init {
-        startTimer()
+        // Timer disabled per user request
     }
 
     private fun startTimer() {
-        timerJob?.cancel()
-        timerJob = viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                if (_uiState.value.isTimerRunning && !_uiState.value.isCompleted) {
-                    _uiState.update { it.copy(elapsedSeconds = it.elapsedSeconds + 1) }
-                }
-            }
-        }
+        // Timer disabled per user request
     }
 
     fun toggleTimer() {
-        _uiState.update { it.copy(isTimerRunning = !it.isTimerRunning) }
+        // Timer disabled per user request
     }
 
     private fun createInitialState(mysterySet: MysterySet, includeChain: Boolean = true): RosaryUiState {
@@ -291,10 +283,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 isCompleted = false,
                 showMysterySelector = false,
                 elapsedSeconds = 0L,
-                isTimerRunning = true
+                isTimerRunning = false
             )
         }
-        startTimer()
     }
 
     fun setShowTodayMysteriesGuide(show: Boolean) {
@@ -432,9 +423,8 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 isCompleted = false,
                 showResetDialog = false,
                 elapsedSeconds = 0L,
-                isTimerRunning = true
+                isTimerRunning = false
             )
         }
-        startTimer()
     }
 }

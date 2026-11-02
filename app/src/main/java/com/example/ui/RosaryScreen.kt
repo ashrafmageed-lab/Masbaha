@@ -80,6 +80,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.History
 import com.example.domain.Step
+import com.example.ui.components.RosaryLogoIndicator
 import com.example.ui.components.CircularRosaryCounter
 import com.example.ui.components.ClosingPrayersDialog
 import com.example.ui.components.FontSizeControlPanel
@@ -96,13 +97,14 @@ import com.example.ui.theme.SacredGold
 import com.example.ui.theme.SacredGoldBright
 
 enum class CounterDisplayMode {
+    LOGO,     // شعار السبحة الجانبي المدمج لتوسيع مساحة الكتابة والقراءة
     CIRCULAR, // عداد الحبات الدائري
     LINEAR    // المسبحة الخطية
 }
 
 /**
  * Main PrayerScreen containing:
- * - Circular Rosary Bead Counter (عداد الحبات الدائري)
+ * - Compact Rosary Logo Indicator (شعار السبحة المدمج لتوسيع مساحة القراءة)
  * - Navigation buttons between beads (أزرار التنقل بين الحبات)
  * - Tactile feedback upon every bead press via LocalHapticFeedback and device Vibrator
  */
@@ -116,7 +118,7 @@ fun PrayerScreen(
     val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
 
-    var displayMode by rememberSaveable { mutableStateOf(CounterDisplayMode.CIRCULAR) }
+    var displayMode by rememberSaveable { mutableStateOf(CounterDisplayMode.LOGO) }
     var showFontSizePanel by rememberSaveable { mutableStateOf(false) }
 
     // 0. If Welcome Dedication Board is active (first 20 seconds upon opening or requested), show it
@@ -155,7 +157,7 @@ fun PrayerScreen(
                     title = {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                            verticalArrangement = Arrangement.spacedBy(1.dp)
                         ) {
                             Text(
                                 text = "المسبحة الوردية",
@@ -163,47 +165,13 @@ fun PrayerScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
-
-                            // Live Prayer Timer Pill (Clickable to pause/resume)
-                            Surface(
-                                color = if (uiState.isTimerRunning) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
-                                else SacredGold.copy(alpha = 0.2f),
-                                shape = RoundedCornerShape(10.dp),
-                                modifier = Modifier
-                                    .clickable {
-                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        viewModel.toggleTimer()
-                                    }
-                                    .testTag("prayer_timer_pill")
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = if (uiState.isTimerRunning) Icons.Default.Timer else Icons.Default.Pause,
-                                        contentDescription = if (uiState.isTimerRunning) "المؤقت يعمل - اضغط للإيقاف المؤقت" else "المؤقت متوقف مؤقتاً - اضغط للاستئناف",
-                                        tint = if (uiState.isTimerRunning) MaterialTheme.colorScheme.primary else SacredGold,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                    Text(
-                                        text = formatStopwatch(uiState.elapsedSeconds),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (uiState.isTimerRunning) MaterialTheme.colorScheme.primary else SacredGold,
-                                        fontSize = 11.sp
-                                    )
-                                    if (!uiState.isTimerRunning && !uiState.isCompleted) {
-                                        Text(
-                                            text = "(إيقاف)",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = SacredGold,
-                                            fontSize = 9.sp
-                                        )
-                                    }
-                                }
-                            }
+                            Text(
+                                text = uiState.currentMysterySet.titleAr,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = SacredGold,
+                                fontSize = 11.sp
+                            )
                         }
                     },
                     navigationIcon = {
@@ -330,25 +298,29 @@ fun PrayerScreen(
                             )
                         }
 
-                        // Toggle between Circular and Linear display mode
+                        // Toggle between LOGO, Circular and Linear display mode
                         IconButton(
                             onClick = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                displayMode = if (displayMode == CounterDisplayMode.CIRCULAR) {
-                                    CounterDisplayMode.LINEAR
-                                } else {
-                                    CounterDisplayMode.CIRCULAR
+                                displayMode = when (displayMode) {
+                                    CounterDisplayMode.LOGO -> CounterDisplayMode.CIRCULAR
+                                    CounterDisplayMode.CIRCULAR -> CounterDisplayMode.LINEAR
+                                    CounterDisplayMode.LINEAR -> CounterDisplayMode.LOGO
                                 }
                             },
                             modifier = Modifier.testTag("toggle_counter_mode_button")
                         ) {
                             Icon(
-                                imageVector = if (displayMode == CounterDisplayMode.CIRCULAR) {
-                                    Icons.Default.LinearScale
-                                } else {
-                                    Icons.Default.Circle
+                                imageVector = when (displayMode) {
+                                    CounterDisplayMode.LOGO -> Icons.Default.Circle
+                                    CounterDisplayMode.CIRCULAR -> Icons.Default.LinearScale
+                                    CounterDisplayMode.LINEAR -> Icons.Default.AutoAwesome
                                 },
-                                contentDescription = if (displayMode == CounterDisplayMode.CIRCULAR) "عرض شريطي" else "عداد دائري",
+                                contentDescription = when (displayMode) {
+                                    CounterDisplayMode.LOGO -> "التبديل إلى العداد الدائري"
+                                    CounterDisplayMode.CIRCULAR -> "التبديل إلى العرض الشريطي"
+                                    CounterDisplayMode.LINEAR -> "التبديل إلى شعار السبحة الجانبي"
+                                },
                                 tint = SacredGold
                             )
                         }
@@ -469,26 +441,8 @@ fun PrayerScreen(
                             )
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Timer,
-                                        contentDescription = null,
-                                        tint = SacredGold,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                    Text(
-                                        text = formatStopwatch(uiState.elapsedSeconds),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontSize = 11.sp
-                                    )
-                                }
-
                                 if (uiState.hapticsEnabled) {
                                     Icon(
                                         imageVector = Icons.Default.Vibration,
@@ -549,7 +503,8 @@ fun PrayerScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .alpha(uiState.backgroundOpacity),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.Center
                 )
 
                 // Soft gradient scrim to ensure text and cards are 100% readable
@@ -670,6 +625,49 @@ fun PrayerScreen(
                 )
             } else {
                 when (displayMode) {
+                    CounterDisplayMode.LOGO -> {
+                        // 1. Compact side logo badge & 10-bead dot strip (~52dp), freeing 80%+ of height for prayer text
+                        RosaryLogoIndicator(
+                            currentStep = uiState.resolvedStep.step,
+                            currentStepIndex = uiState.currentStepIndex,
+                            steps = uiState.steps,
+                            onJumpToStep = { index ->
+                                if (uiState.hapticsEnabled) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                                viewModel.jumpToStep(index, context)
+                            },
+                            onLogoClick = {
+                                if (uiState.hapticsEnabled) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                                viewModel.nextStep(context)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // 2. Large reading area occupying maximum screen space
+                        PrayerCard(
+                            content = uiState.resolvedStep,
+                            fontScale = uiState.fontScale,
+                            onCardClick = {
+                                if (uiState.hapticsEnabled) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                                viewModel.nextStep(context)
+                            },
+                            onToggleFontSize = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showFontSizePanel = !showFontSizePanel
+                            },
+                            onToggleReadingMode = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.toggleReadingMode()
+                            },
+                            isReadingModeExpanded = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                     CounterDisplayMode.CIRCULAR -> {
                         // 1. Circular Beads Counter or Compact Strip
                         if (!uiState.isExpandedReadingMode) {
@@ -976,7 +974,7 @@ private fun CompletionCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Prominent Elapsed Duration Card
+            // Marian and Church Dedication Card (Replaces disabled timer)
             Surface(
                 color = SacredGold.copy(alpha = 0.12f),
                 shape = RoundedCornerShape(16.dp),
@@ -989,21 +987,22 @@ private fun CompletionCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Timer,
-                        contentDescription = "المدة المستغرقة",
+                        imageVector = Icons.Default.Church,
+                        contentDescription = "كنيسة مار مرقس - جنود مريم",
                         tint = SacredGold,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(26.dp)
                     )
 
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "المدة المستغرقة في الصلاة",
+                            text = "كنيسة مار مرقس للأقباط الكاثوليك",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = formatDurationAr(elapsedSeconds),
-                            style = MaterialTheme.typography.titleMedium,
+                            text = "جنود مريم • فرقة جميلة كالقمر • كلنا لمريم",
+                            style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                             color = SacredGold
                         )

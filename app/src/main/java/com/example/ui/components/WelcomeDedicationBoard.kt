@@ -108,14 +108,15 @@ fun WelcomeDedicationBoard(
             .background(MaterialTheme.colorScheme.background)
             .testTag("welcome_dedication_board")
     ) {
-        // Soft background image of Our Lady of Graces
+        // Soft background image of Our Lady of Graces (full figure without cropping)
         Image(
             painter = painterResource(id = R.drawable.img_our_lady_grace),
             contentDescription = "السيدة العذراء واهبة النعم",
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(0.18f),
-            contentScale = ContentScale.Crop
+                .alpha(0.15f),
+            contentScale = ContentScale.Fit,
+            alignment = Alignment.Center
         )
 
         // Gradient overlay for readability and spiritual atmosphere
@@ -125,9 +126,9 @@ fun WelcomeDedicationBoard(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.80f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.55f),
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.92f)
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.85f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.60f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.95f)
                         )
                     )
                 )
@@ -138,7 +139,7 @@ fun WelcomeDedicationBoard(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(20.dp)
+                .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -146,30 +147,34 @@ fun WelcomeDedicationBoard(
             // Top Section: Church & Dedication Medallion
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier.padding(top = 10.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(top = 4.dp)
             ) {
-                // Sacred Image Oval Medallion
+                // Sacred Image Full-Figure Portrait Frame (No Cropping)
                 Surface(
                     modifier = Modifier
-                        .size(136.dp)
-                        .clip(CircleShape)
+                        .height(260.dp)
+                        .fillMaxWidth(0.66f)
+                        .clip(RoundedCornerShape(22.dp))
                         .border(
-                            width = 2.5.dp,
-                            brush = Brush.linearGradient(listOf(SacredGoldBright, SacredGold, SacredGoldBright)),
-                            shape = CircleShape
+                            width = 2.dp,
+                            brush = Brush.verticalGradient(listOf(SacredGoldBright, SacredGold, SacredGoldBright)),
+                            shape = RoundedCornerShape(22.dp)
                         ),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(22.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
                     tonalElevation = 6.dp,
                     shadowElevation = 8.dp
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Image(
                             painter = painterResource(id = R.drawable.img_our_lady_grace),
-                            contentDescription = "السيدة العذراء واهبة النعم",
+                            contentDescription = "السيدة العذراء واهبة النعم - الصورة الكاملة",
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                     }
                 }
